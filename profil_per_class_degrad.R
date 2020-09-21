@@ -272,14 +272,14 @@ res.bast_parallele.logging<-foreach(i = 1:nrow(modis.evi.para.mx.logging),
 
 
 stopCluster(cl)
-res.bast_parallele.logging[[1]]
+res.bast_parallele.logging.logging[[1]]
 
 
 res.bfast.xts<-list()
 
-for (i in 1:length(res.bast_parallele)){
+for (i in 1:length(res.bast_parallele.logging)){
   print(i)
-  X<-xts(res.bast_parallele[[i]][[1]], as.Date(time(res.bast_parallele[[i]][[1]])))
+  X<-xts(res.bast_parallele.logging[[i]][[1]], as.Date(time(res.bast_parallele.logging[[i]][[1]])))
   
   
   # colnames(X)<-c("evi.seas","date")
@@ -287,10 +287,10 @@ for (i in 1:length(res.bast_parallele)){
   # res.date<-cbind(res.date,X$date)
 }
 res.bfast.xts<-do.call("cbind",res.bfast.xts)
-res.date<-matrix(nrow = length(res.bast_parallele),ncol = 5)
-for (i in 1:length(res.bast_parallele)){
+res.date<-matrix(nrow = length(res.bast_parallele.logging),ncol = 5)
+for (i in 1:length(res.bast_parallele.logging)){
   print(i)
-  dat.X<-res.bast_parallele[[i]][[2]]
+  dat.X<-res.bast_parallele.logging[[i]][[2]]
   dat.X<-as.character(dat.X)
   
   
@@ -304,7 +304,6 @@ for (i in 1:length(res.bast_parallele)){
   res.date[i,]<-as.Date(dat.X)
   # res.date<-cbind(res.date,X$date)
 }
-hist(as.Date(as.vector(res.date)))
 hist(as.Date(res.date[,2]),18)
 date.vc<-NULL
 for (i in 1 :ncol(res.date)){
@@ -314,16 +313,10 @@ for (i in 1 :ncol(res.date)){
 date.vc<-as.data.frame(as.Date(date.vc))
 
 date.vc$Year<-format(date.vc,"%Y")
-plot(date.vc$`as.Date(date.vc)`,date.vc$Year)
 pos.na<-which(is.na(date.vc[,1]))
 date.vc<-date.vc[-pos.na,]
 summ<-table(date.vc$Year)
 plot(summ)
-plot(as.Date(date.vc),)
-str(res.date)
-str(res.bfast.xts)
-time(res.bfast.xts)
-dim(res.bfast.xts)
 subset_xts<-res.bfast.xts['2002/2018']
 subset_xts.mx<-as.matrix(t(subset_xts))
 dim(subset_xts.mx)
@@ -331,8 +324,7 @@ colnames(subset_xts.mx)
 rownames(subset_xts.mx)<-1:nrow(subset_xts.mx)
 
 
-kmeans.seasonal<-kmeans(na.omit(subset_xts.mx),5)
-res <- kmeans(na.omit(subset_xts.mx), 2)$cluster
+res <- kmeans(na.omit(subset_xts.mx), 2,iter.max = 1000)$cluster
 res
 DF=cbind.data.frame(subset_xts.mx, 'clus'=NA)
 DF[names(res),][,ncol(DF)] <- res
@@ -350,7 +342,7 @@ DF.agg.melt.agg<-aggregate(evi~month+class,DF.agg.melt,mean)
 gplot_seasggplot<-ggplot(DF.agg.melt.agg,aes(x = as.integer(month),y=evi,colour=class))+
   geom_line()
 gplot_seasggplot
-ggsave(gplot_seasggplot,filename = "")
+
 
 
 
